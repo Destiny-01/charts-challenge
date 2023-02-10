@@ -1,0 +1,12 @@
+{
+  "name": "full_stack_challenge",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "scripts": {
+    "install-all": "cd express_server && yarn && cd ../client && yarn",
+    "start": "concurrently \"cd express_server && npm run dev\" \"cd client && npm run dev\""
+  }
+}
