@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, Fragment } from 'react';
-import './App.css';
+import './styles/App.css';
 import {
   LineChart,
   Line,
@@ -10,7 +10,10 @@ import {
   Legend,
   BarChart,
   Bar,
+  Brush,
 } from 'recharts';
+import Login from './components/Login';
+import { months } from './utils';
 
 type Data = {
   month: string;
@@ -23,13 +26,11 @@ export function App() {
   const [data, setData] = useState<Data[]>([]);
   const [displayedData, setDisplayedData] = useState<any[]>([]);
   const [isLineChart, setIsLineChart] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [showMonthly, shouldShowMonthly] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const selectRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
     call();
   }, []);
 
@@ -39,9 +40,12 @@ export function App() {
       const data = await res.json();
       setData(data.data);
       handleMonthChange(null, data.data);
-      selectRef.current!.value = '1';
+      if (isLoggedIn) {
+        selectRef.current!.value = '1';
+      }
     } catch (err: any) {
       console.log(err);
+      alert(err.message);
     }
   };
 
@@ -60,12 +64,32 @@ export function App() {
     });
   };
 
+  useEffect(() => {
+    if (showMonthly) {
+      setDisplayedData([]);
+      const total: number[] = [];
+      data.forEach((newData) => {
+        total[parseInt(newData.month) - 1] =
+          (total[parseInt(newData.month) - 1] || 0) + parseFloat(newData.cpu_hours);
+      });
+
+      total.forEach((val, i) => {
+        const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 31, 31];
+        const average = val / daysInMonth[i];
+        setDisplayedData((prevData) => [
+          ...prevData,
+          { name: months[i], cpuHours: average.toFixed(2) },
+        ]);
+      });
+    } else {
+      handleMonthChange();
+    }
+  }, [showMonthly, data]);
+
   return (
     <Fragment>
-      {isLoading ? (
-        <div className='loading'>
-          <h1 className='welcome-text'>Welcome!</h1>
-        </div>
+      {!isLoggedIn ? (
+        <Login setIsLoggedIn={() => setIsLoggedIn(true)} />
       ) : (
         <div className='main'>
           <h2>Welcome to the CPU Usage Charts</h2>
@@ -87,7 +111,15 @@ export function App() {
               />
               <span className='label'>{isLineChart ? 'Bar Chart' : 'Line Chart'}</span>
             </div>
-            <select ref={selectRef} onChange={handleMonthChange}>
+            <div className='check'>
+              <input
+                type='checkbox'
+                checked={showMonthly}
+                onChange={() => shouldShowMonthly(!showMonthly)}
+              />
+              <span className='label'>Filter by monthly Average</span>
+            </div>
+            <select ref={selectRef} disabled={showMonthly} onChange={handleMonthChange}>
               <option value='1'>January</option>
               <option value='2'>February</option>
               <option value='3'>March</option>
@@ -107,19 +139,21 @@ export function App() {
               <LineChart width={1200} height={500} data={displayedData}>
                 <CartesianGrid strokeDasharray='3 3' />
                 <XAxis dataKey='name' />
-                <YAxis tickCount={10} minTickGap={3} />
+                <YAxis domain={[0, 100]} tickCount={10} />
                 <Tooltip />
                 <Legend />
                 <Line type='monotone' dataKey='cpuHours' activeDot={{ r: 8 }} stroke='#8884d8' />
+                <Brush dataKey='name' height={8} stroke='#8884d8' />
               </LineChart>
             ) : (
               <BarChart width={1200} height={500} data={displayedData}>
                 <CartesianGrid strokeDasharray='3 3' />
                 <XAxis dataKey='name' />
-                <YAxis tickCount={10} minTickGap={3} />
+                <YAxis domain={[0, 100]} tickCount={10} />
                 <Tooltip />
                 <Legend />
                 <Bar dataKey='cpuHours' fill='#8884d8' />
+                <Brush dataKey='name' height={8} stroke='#8884d8' />
               </BarChart>
             )}
           </div>

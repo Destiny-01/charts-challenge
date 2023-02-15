@@ -36,7 +36,7 @@ Have fun!
 
 ### Anything we should know about your implementation? Libraries we need to install for it to work? Commands we need to run?
 
-Just a basic application. Just clone the project, run "npm run install" then run "npm start"
+Just a basic application. Just clone the project, run "npm run install" then run "npm start". Sign Up, access the app. You can filter by year and the bar below the chart is the zoom layer
 
 ### What features did you add? How do we use these features?
 

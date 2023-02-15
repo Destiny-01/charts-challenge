@@ -3,10 +3,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
 import csv from 'csvtojson';
+import { sequelize } from './models/User';
+import authRoutes from './routes/authRoutes';
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
+app.use(authRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
@@ -27,6 +30,11 @@ app.get('/data', async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'error', data: err.message });
   }
 });
+
+sequelize
+  .sync()
+  .then(() => console.log('We up! DB ready to communicate'))
+  .catch((err) => console.log(`Ouch! Something occurred and our DB could not start ${err}`));
 
 const port = 8000;
 app.listen(port, () => {
