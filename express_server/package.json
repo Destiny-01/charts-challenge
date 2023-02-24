@@ -2,7 +2,7 @@
   "name": "express-server",
   "version": "1.0.0",
   "scripts": {
-    "start": "node ./src/index.ts",
+    "start": "node -r tsconfig-paths/register -r ts-node/register ./src/index.ts ./src/index.ts",
     "dev": "nodemon ./src/index.ts"
   },
   "dependencies": {
