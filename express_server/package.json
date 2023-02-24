@@ -2,6 +2,7 @@
   "name": "express-server",
   "version": "1.0.0",
   "scripts": {
+    "start": "node ./src/index.ts",
     "dev": "nodemon ./src/index.ts"
   },
   "dependencies": {

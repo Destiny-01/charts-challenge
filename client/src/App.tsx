@@ -36,7 +36,13 @@ export function App() {
 
   const call = async (year = '2017') => {
     try {
-      const res = await fetch(`http://localhost:8000/data?year=${year}`);
+      const res = await fetch(
+        `${
+          window.location.host === '127.0.0.1:5175'
+            ? 'http://localhost:8000'
+            : 'http://charts-challenge-server'
+        }/data?year=${year}`,
+      );
       const data = await res.json();
       setData(data.data);
       handleMonthChange(null, data.data);
